@@ -38,7 +38,7 @@ function App() {
         <RefreshButton onClick={handleRefreshBtn} />
       </div>
       {isLoading ? <Loader /> :
-        <div className={`grid grid-cols-3 gap-1 justify-items-center content-center px-3 py-3 h-auto flex-grow`}>
+        <div className={`grid grid-cols-3 sm:grid-cols-2 gap-1 justify-items-center content-center px-3 py-3 h-auto flex-grow`}>
           {stations.map((station) => (
             <AirQCard key={station.id} station={station} />
           ))}
