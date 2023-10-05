@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const Location = require('./models/Location');
+const jwt = require('jsonwebtoken');
+const ApiKey = require('./models/ApiKeys');
 require('dotenv').config();
 
 
@@ -23,7 +25,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.route('/').get((req, res) => {
     const locations = Location.find().then(locations => {
-        console.log(locations)
         res.json(locations);
     }).catch(err => {
         console.log(err);
@@ -31,20 +32,80 @@ app.route('/').get((req, res) => {
 });
 
 app.route('/sensor/update').post(async (req, res) => {
-    const locationData = req.body;
-    locationData.forEach(async location => {
-        const { Id, Strada, Concentratie } = location;
-        console.log(Id, Strada, Concentratie)
-        try {
-            var loc = await Location.create({ id: Id, strada: Strada, concentratie: Concentratie });
-            console.log(loc);
-        } catch (err) {
-            console.log(err);
+    let tokenHeaderKey = process.env.TOKEN_HEADER_KEY;
+    let jwtSecretKey = process.env.JWT_SECRET_KEY;
+
+    try {
+        const token = req.header(tokenHeaderKey);
+        const verified = jwt.verify(token, jwtSecretKey);
+        if (verified) {
+            const locationData = req.body;
+            locationData.forEach(async location => {
+                const { Id, Strada, Concentratie, Temperatura } = location;
+                try {
+                    if (await Location.exists({ id: Id })) {
+                        var loc = await Location.findOne({ id: Id });
+                        console.log(loc);
+                        var arhivaDate = [{ concentratie: Concentratie, temperatura: Temperatura, createdAt: Date.now() }, ...loc.arhivaDate];
+                        var loc = await Location.updateOne({ id: Id }, { id: Id, strada: Strada, concentratie: Concentratie, temperatura: Temperatura, arhivaDate: arhivaDate })
+                    } else {
+                        var fisrtArhivaDate = {
+                            concentratie: Concentratie,
+                            temperatura: Temperatura,
+                            createdAt: Date.now()
+                        }
+                        var loc = await Location.create({ id: Id, strada: Strada, concentratie: Concentratie, temperatura: Temperatura, arhivaDate: [fisrtArhivaDate] });
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+            });
+
+        } else {
+            // Access Denied 
+            return res.status(401).send(error);
         }
-    });
-    res.status(200).send('OK');
+    } catch (error) {
+        return res.status(401).send(error);
+    }
+    return res.status(200).send("Successfully Updated");
 });
 
-app.listen(4000, () => {
+app.route('/sensor/generatetoken').post(async (req, res) => {
+    let jwtSecretKey = process.env.JWT_SECRET_KEY;
+    let data = {
+        time: Date(),
+        userId: 12,
+    }
+
+    const token = jwt.sign(data, jwtSecretKey);
+    if (await ApiKey.exists({ token: token })) {
+        res.status(400).send('Token already exists');
+        return;
+    }
+    await ApiKey.create({ token: token });
+    res.send(token);
+});
+
+app.route('/sensor/validatetoken').get(async (req, res) => {
+    let tokenHeaderKey = process.env.TOKEN_HEADER_KEY;
+    let jwtSecretKey = process.env.JWT_SECRET_KEY;
+    try {
+        const token = req.header(tokenHeaderKey);
+
+        const verified = jwt.verify(token, jwtSecretKey);
+        if (verified) {
+            return res.send("Successfully Verified");
+        } else {
+            // Access Denied 
+            return res.status(401).send(error);
+        }
+    } catch (error) {
+        // Access Denied 
+        return res.status(401).send(error);
+    }
+})
+
+app.listen(process.env.PORT, () => {
     console.log('Server is running on port 4000');
 });
