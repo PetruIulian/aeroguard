@@ -5,12 +5,15 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
+#include <WiFiClientSecure.h>
 
 
+
+WiFiClientSecure client;
 const char* ssid = "Wifi";
 const char* password = "parola123";
 
-const char* serverName = "https://www.aeroguard-backend.vercel.app/sensor/update"; // to be updated
+const char* serverName = "https://aeroguard-backend.vercel.app/sensor/update"; // to be updated
 unsigned long lastTime = 0;
 unsigned long timerDelay = 5;
 
@@ -47,7 +50,9 @@ void setup() {
     radio.openReadingPipe(3, address[2]);
     radio.startListening();
 
-    WiFi.begin(ssid, password);
+    WiFiClientSecure client;
+
+    WiFiSecure.begin(ssid, password);
     while(WiFi.status() != WL_CONNECTED){
       delay(500);
       Serial.print(".");
