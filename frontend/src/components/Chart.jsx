@@ -11,7 +11,7 @@ function Chart({ station }) {
     })
     return (
         <div className="popup-container">
-            <div className="popup h-screen w-screen">
+            <div className="popup h-auto w-auto">
                 <LineChart
                     width={`${window.innerWidth / 2}`}
                     height={300}
