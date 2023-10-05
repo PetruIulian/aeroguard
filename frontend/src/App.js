@@ -20,7 +20,7 @@ function App() {
     async function fetchData() {
       try {
         setIsLoading(true);
-        const response = await fetch(`http://192.168.32.90:4000/`);
+        const response = await fetch(`http://aeroguard-backend.vercel.app/`);
         const data = await response.json();
         setStations(data);
       } catch (error) {
