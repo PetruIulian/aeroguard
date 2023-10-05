@@ -13,7 +13,7 @@ function Chart({ station }) {
         <div className="popup-container">
             <div className="popup">
                 <LineChart
-                    width={`${window.innerWidth - 100}`}
+                    width={`${window.innerWidth / 2}`}
                     height={300}
                     data={data}
                     margin={{
