@@ -10,7 +10,7 @@
 const char* ssid = "Wifi";
 const char* password = "parola123";
 
-const char* serverName = "http://192.168.32.90:4000/sensor/update"; // to be updated
+const char* serverName = "https://www.aeroguard-backend.vercel.app/sensor/update"; // to be updated
 unsigned long lastTime = 0;
 unsigned long timerDelay = 5;
 
