@@ -8,10 +8,10 @@
 #include <WiFiClientSecure.h>
 
 
-const char* ssid = "Petru";
-const char* password = "exez0052";
+const char* ssid = "";
+const char* password = "";
 
-const char* serverName = "https://aeroguard-backend.vercel.app/sensor/update"; // to be updated
+const char* serverName = ""; // to be updated
 unsigned long lastTime = 0;
 unsigned long timerDelay = 5;
 
@@ -80,7 +80,7 @@ void loop() {
         client.setInsecure();
         http.begin(client, serverName);
         http.addHeader("Content-Type", "application/json");
-        http.addHeader("aeroguard_api_key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiVGh1IE9jdCAwNSAyMDIzIDE2OjUxOjIwIEdNVCswMzAwIChPcmEgZGUgdmFyxIMgYSBFdXJvcGVpIGRlIEVzdCkiLCJ1c2VySWQiOjEyLCJpYXQiOjE2OTY1MTM4ODB9.XlkbJgFVA7XLpZa6ItwhV7mxcuESfE8M9Oqag7caOUs");
+        http.addHeader("aeroguard_api_key", "");
         int httpResponseCode = http.POST(message);
 
         Serial.print("HTTP Response code:");
