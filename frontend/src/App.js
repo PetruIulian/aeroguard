@@ -30,7 +30,7 @@ function App() {
       }
     };
     fetchData();
-  }, [refreshBtn, openLocation]);
+  }, [refreshBtn]);
 
   function handleRefreshBtn() {
     setRefreshBtn(!refreshBtn);
