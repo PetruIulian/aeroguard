@@ -8,10 +8,8 @@
 #include <WiFiClientSecure.h>
 
 
-
-WiFiClientSecure client;
-const char* ssid = "Wifi";
-const char* password = "parola123";
+const char* ssid = "Petru";
+const char* password = "exez0052";
 
 const char* serverName = "https://aeroguard-backend.vercel.app/sensor/update"; // to be updated
 unsigned long lastTime = 0;
@@ -50,14 +48,12 @@ void setup() {
     radio.openReadingPipe(3, address[2]);
     radio.startListening();
 
-    WiFiClientSecure client;
-
-    WiFiSecure.begin(ssid, password);
+    WiFi.begin(ssid, password);
     while(WiFi.status() != WL_CONNECTED){
       delay(500);
       Serial.print(".");
     }
-    Serial.println("CONNECTED TO WIFI");
+    Serial.println("WifiConnected");
 }
 
 //=============
@@ -79,9 +75,9 @@ void loop() {
       Serial.println(message);
 
       if(WiFi.status() == WL_CONNECTED){
-        WiFiClient client;
+        WiFiClientSecure client;
         HTTPClient http;
-
+        client.setInsecure();
         http.begin(client, serverName);
         http.addHeader("Content-Type", "application/json");
         http.addHeader("aeroguard_api_key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiVGh1IE9jdCAwNSAyMDIzIDE2OjUxOjIwIEdNVCswMzAwIChPcmEgZGUgdmFyxIMgYSBFdXJvcGVpIGRlIEVzdCkiLCJ1c2VySWQiOjEyLCJpYXQiOjE2OTY1MTM4ODB9.XlkbJgFVA7XLpZa6ItwhV7mxcuESfE8M9Oqag7caOUs");
