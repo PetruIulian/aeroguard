@@ -45,6 +45,9 @@ function App() {
           }
           return station;
         });
+        if (updatedStations.length === 0) {
+          setStations(stations);
+        }
         setStations(updatedStations);
       });
       socket.on('disconnect', () => {
