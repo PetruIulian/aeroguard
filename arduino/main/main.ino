@@ -11,7 +11,7 @@
 const char* ssid = "";
 const char* password = "";
 
-const char* serverName = ""; // to be updated
+const char* serverName = "https://aeroguard-backend.vercel.app"; // to be updated
 unsigned long lastTime = 0;
 unsigned long timerDelay = 5;
 
@@ -80,7 +80,7 @@ void loop() {
         client.setInsecure();
         http.begin(client, serverName);
         http.addHeader("Content-Type", "application/json");
-        http.addHeader("aeroguard_api_key", "");
+        http.addHeader("aeroguard_api_key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiRnJpIE9jdCAwNiAyMDIzIDAwOjAwOjUwIEdNVCswMzAwIChPcmEgZGUgdmFyxIMgYSBFdXJvcGVpIGRlIEVzdCkiLCJ1c2VySWQiOjEyLCJpYXQiOjE2OTY1Mzk2NTB9.0i_0Bnv7a7Mv7mw2E__f8garFmcta_KAGjuOLXskQWE");
         int httpResponseCode = http.POST(message);
 
         Serial.print("HTTP Response code:");

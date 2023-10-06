@@ -7,6 +7,8 @@ import Loader from "./components/Loader";
 import RefreshButton from "./components/RefreshButton";
 import AirAlert from "./components/AirAlert";
 import Chart from "./components/Chart";
+import io from 'socket.io-client';
+
 
 
 function App() {
@@ -16,11 +18,32 @@ function App() {
   const [refreshBtn, setRefreshBtn] = useState(false);
   const [openId, setOpenId] = useState(null);
   const [openLocation, setOpenLocation] = useState(null);
+
+  useEffect(() => {
+    var socket = io.connect('https://aeroguar-backend.vercel.app');
+    socket.on('connect', (data) => {
+      console.log('Connected to server');
+      socket.on('updatedLocations', (data) => {
+        const updatedStations = stations.map((station) => {
+          const updatedStation = data.find((updatedStation) => updatedStation.id === station.id);
+          if (updatedStation) {
+            return updatedStation;
+          }
+          return station;
+        });
+        setStations(updatedStations);
+      });
+      socket.on('disconnect', () => {
+        console.log('Disconnected from server');
+      });
+    });
+  });
+
   useEffect(() => {
     async function fetchData() {
       try {
         setIsLoading(true);
-        const response = await fetch(`https://aeroguard-backend.vercel.app/`);
+        const response = await fetch(`http://aeroguard-backend.vercel.app/`);
         const data = await response.json();
         setStations(data);
       } catch (error) {
@@ -30,12 +53,7 @@ function App() {
       }
     };
     fetchData();
-  }, [refreshBtn]);
-
-  function handleRefreshBtn() {
-    setRefreshBtn(!refreshBtn);
-  }
-
+  }, []);
   function handleOpenId(id) {
     setOpenId(id);
   }
@@ -55,10 +73,9 @@ function App() {
           </div>
         </div>}
       <div className="flex justify-between px-5 py-5">
-        <RefreshButton onClick={handleRefreshBtn} />
         <div className="grid grid-cols-1 gap-1">
           {stations.map((station) => (
-            station.concentratie >= 10 && <AirAlert key={station.id} strada={station.strada.replace("_", " ")} />
+            station.concentratie >= 10 && <AirAlert key={station.id} strada={station.strada.replace("_", " ")} concentratie={station.concentratie} />
           ))}
         </div>
       </div>

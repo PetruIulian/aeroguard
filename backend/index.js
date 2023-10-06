@@ -5,9 +5,8 @@ const mongoose = require('mongoose');
 const Location = require('./models/Location');
 const jwt = require('jsonwebtoken');
 const ApiKey = require('./models/ApiKeys');
+const { Server } = require('socket.io');
 require('dotenv').config();
-
-
 const app = express();
 
 const uri = process.env.DB_URI;
@@ -40,12 +39,13 @@ app.route('/sensor/update').post(async (req, res) => {
         const verified = jwt.verify(token, jwtSecretKey);
         if (verified) {
             const locationData = req.body;
+            var updatedData = [];
+            var isNew = false;
             locationData.forEach(async location => {
                 const { Id, Strada, Concentratie, Temperatura } = location;
                 try {
                     if (await Location.exists({ id: Id })) {
                         var loc = await Location.findOne({ id: Id });
-                        console.log(loc);
                         var arhivaDate = [{ concentratie: Concentratie, temperatura: Temperatura, createdAt: Date.now() }, ...loc.arhivaDate];
                         var loc = await Location.updateOne({ id: Id }, { id: Id, strada: Strada, concentratie: Concentratie, temperatura: Temperatura, arhivaDate: arhivaDate })
                     } else {
@@ -56,9 +56,16 @@ app.route('/sensor/update').post(async (req, res) => {
                         }
                         var loc = await Location.create({ id: Id, strada: Strada, concentratie: Concentratie, temperatura: Temperatura, arhivaDate: [fisrtArhivaDate] });
                     }
+                    if (isNew) {
+                        updatedData.push({ id: Id, strada: Strada, concentratie: Concentratie, temperatura: Temperatura, arhivaDate: fisrtArhivaDate, updatedAt: Date.now() });
+                    } else {
+                        updatedData.push({ id: Id, strada: Strada, concentratie: Concentratie, temperatura: Temperatura, arhivaDate: arhivaDate, updatedAt: Date.now() });
+                    }
+
                 } catch (err) {
                     console.log(err);
                 }
+                socketIo.emit('updatedLocations', updatedData);
             });
 
         } else {
@@ -106,6 +113,20 @@ app.route('/sensor/validatetoken').get(async (req, res) => {
     }
 })
 
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
     console.log('Server is running on port 4000');
+});
+
+const socketIo = new Server(server, {
+    cors: {
+        origin: '*', // Allow any origin for testing purposes. This should be changed on production.
+    },
+});
+
+socketIo.on('connection', (socket) => {
+    console.log('New connection created');
+    socket.on('updatedLocations', (data) => {
+        socket.broadcast.emit('updatedLocations', data);
+    });
+
 });
