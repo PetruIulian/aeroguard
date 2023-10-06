@@ -4,7 +4,6 @@ import AirQCard from "./components/AirQCard";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
-import RefreshButton from "./components/RefreshButton";
 import AirAlert from "./components/AirAlert";
 import Chart from "./components/Chart";
 import io from 'socket.io-client';
@@ -15,12 +14,27 @@ function App() {
 
   const [stations, setStations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [refreshBtn, setRefreshBtn] = useState(false);
   const [openId, setOpenId] = useState(null);
   const [openLocation, setOpenLocation] = useState(null);
 
   useEffect(() => {
-    var socket = io.connect('https://aeroguard-backend.vercel.app');
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`http://192.168.51.90:4000/`);
+        const data = await response.json();
+        setStations(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    var socket = io.connect('http://192.168.51.90:4000');
     socket.on('connect', (data) => {
       console.log('Connected to server');
       socket.on('updatedLocations', (data) => {
@@ -38,22 +52,6 @@ function App() {
       });
     });
   });
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`https://aeroguard-backend.vercel.app/`);
-        const data = await response.json();
-        setStations(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
   function handleOpenId(id) {
     setOpenId(id);
   }
@@ -75,7 +73,7 @@ function App() {
       <div className="flex justify-between px-5 py-5">
         <div className="grid grid-cols-1 gap-1">
           {stations.map((station) => (
-            station.concentratie >= 10 && <AirAlert key={station.id} strada={station.strada.replace("_", " ")} concentratie={station.concentratie} />
+            station.concentratie >= 100 && <AirAlert key={station.id} strada={station.strada.replace("_", " ")} concentratie={station.concentratie} />
           ))}
         </div>
       </div>

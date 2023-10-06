@@ -5,13 +5,12 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
-#include <WiFiClientSecure.h>
 
 
-const char* ssid = "";
-const char* password = "";
+const char* ssid = "Petru";
+const char* password = "exez0052";
 
-const char* serverName = "https://aeroguard-backend.vercel.app"; // to be updated
+const char* serverName = "http://192.168.51.90:4000/sensor/update"; // to be updated
 unsigned long lastTime = 0;
 unsigned long timerDelay = 5;
 
@@ -75,12 +74,12 @@ void loop() {
       Serial.println(message);
 
       if(WiFi.status() == WL_CONNECTED){
-        WiFiClientSecure client;
+        WiFiClient client;
         HTTPClient http;
-        client.setInsecure();
+
         http.begin(client, serverName);
         http.addHeader("Content-Type", "application/json");
-        http.addHeader("aeroguard_api_key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiRnJpIE9jdCAwNiAyMDIzIDAwOjAwOjUwIEdNVCswMzAwIChPcmEgZGUgdmFyxIMgYSBFdXJvcGVpIGRlIEVzdCkiLCJ1c2VySWQiOjEyLCJpYXQiOjE2OTY1Mzk2NTB9.0i_0Bnv7a7Mv7mw2E__f8garFmcta_KAGjuOLXskQWE");
+        http.addHeader("aeroguard_api_key", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aW1lIjoiVGh1IE9jdCAwNSAyMDIzIDE2OjUxOjIwIEdNVCswMzAwIChPcmEgZGUgdmFyxIMgYSBFdXJvcGVpIGRlIEVzdCkiLCJ1c2VySWQiOjEyLCJpYXQiOjE2OTY1MTM4ODB9.XlkbJgFVA7XLpZa6ItwhV7mxcuESfE8M9Oqag7caOUs");
         int httpResponseCode = http.POST(message);
 
         Serial.print("HTTP Response code:");
