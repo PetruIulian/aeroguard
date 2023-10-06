@@ -18,22 +18,6 @@ function App() {
   const [openLocation, setOpenLocation] = useState(null);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setIsLoading(true);
-        const response = await fetch(`http://192.168.51.90:4000/`);
-        const data = await response.json();
-        setStations(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     var socket = io.connect('http://192.168.51.90:4000');
     socket.on('connect', (data) => {
       console.log('Connected to server');
@@ -55,6 +39,23 @@ function App() {
       });
     });
   });
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`http://192.168.51.90:4000/`);
+        const data = await response.json();
+        setStations(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   function handleOpenId(id) {
     setOpenId(id);
   }
@@ -76,7 +77,7 @@ function App() {
       <div className="flex justify-between px-5 py-5">
         <div className="grid grid-cols-1 gap-1">
           {stations.map((station) => (
-            station.concentratie >= 100 && <AirAlert key={station.id} strada={station.strada.replace("_", " ")} concentratie={station.concentratie} />
+            station.concentratie >= 100 && <AirAlert key={station.id + 1} strada={station.strada.replace("_", " ")} concentratie={station.concentratie} />
           ))}
         </div>
       </div>
@@ -84,7 +85,7 @@ function App() {
         isLoading ? <Loader /> :
           <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 justify-items-center content-center px-3 py-3 h-auto flex-grow`}>
             {stations.map((station) => (
-              <AirQCard key={station.id} station={station} id={station.id + 1} onOpenId={handleOpenId} onOpenLocation={handleOpenLocation} />
+              <AirQCard key={station.id + 1} station={station} id={station.id + 1} onOpenId={handleOpenId} onOpenLocation={handleOpenLocation} />
             ))}
           </div>
       }
