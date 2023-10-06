@@ -20,7 +20,7 @@ function App() {
   const [openLocation, setOpenLocation] = useState(null);
 
   useEffect(() => {
-    var socket = io.connect('https://aeroguar-backend.vercel.app');
+    var socket = io.connect('https://aeroguard-backend.vercel.app');
     socket.on('connect', (data) => {
       console.log('Connected to server');
       socket.on('updatedLocations', (data) => {
